@@ -1,0 +1,241 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+generator erd {
+  provider = "prisma-erd-generator"
+  output   = "ERD.svg" // Optional: specify output file (default is ERD.svg)
+  theme    = "forest" // Optional: choose a theme (e.g., forest, neutral)
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  SUPERADMIN
+  ADMIN
+  MANAGER
+  EMPLOYEE
+}
+
+enum ProjectStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+}
+
+enum LeaveStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum TaskStatus {
+  PENDING
+  IN_PROGRESS
+  ON_HOLD
+  CANCELLED
+  QA
+  BLOCKED
+  COMPLETED
+}
+
+enum PasswordType {
+  PRIVATE
+  PUBLIC
+  RESTRICTED
+}
+
+// User Model with role
+model User {
+  id        String    @id @default(uuid())
+  email     String    @unique
+  name      String?
+  password  String
+  role      UserRole  @default(EMPLOYEE)
+  employee  Employee? @relation("UserEmployee")
+  projects  Project[]
+  leaves    Leave[]
+  manager   Manager?
+  isManager Boolean   @default(false)
+
+  passwordResetToken   String?
+  passwordResetExpires DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([email])
+  @@index([role])
+}
+
+model Manager {
+  id         String     @id @default(uuid())
+  user       User       @relation(fields: [userId], references: [id])
+  userId     String     @unique
+  employee   Employee   @relation("ManagerEmployee", fields: [employeeId], references: [id])
+  employeeId String     @unique
+  employees  Employee[] @relation("EmployeeReportingTo")
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+}
+
+// Employee Model
+model Employee {
+  id              String          @id @default(uuid())
+  user            User            @relation("UserEmployee", fields: [userId], references: [id])
+  userId          String          @unique
+  designation     String          @default("Employee")
+  joiningDate     DateTime        @default(now())
+  reportingToId   String?
+  projects        Project[]       @relation("EmployeeProjects")
+  reportingTo     Manager?        @relation("EmployeeReportingTo", fields: [reportingToId], references: [id])
+  departments     Department[]    @relation("EmployeeDepartments")
+  leaves          Leave[]
+  availableLeaves Int             @default(25)
+  timeLogs        TimeLog[]
+  passwords       Password[]      @relation("PasswordOwner")
+  sharedPasswords PasswordShare[]
+  manager         Manager?        @relation("ManagerEmployee")
+  managerId       String?
+  tasks           Task[]          @relation("TaskAssignee")
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  Project         Project[]
+
+  @@index([userId])
+  @@index([reportingToId])
+  @@index([joiningDate])
+  @@index([designation])
+}
+
+// Department Model
+model Department {
+  id        String     @id @default(uuid())
+  name      String     @unique
+  employees Employee[] @relation("EmployeeDepartments")
+  projects  Project[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  @@index([name])
+}
+
+// Project Model
+model Project {
+  id           String        @id @default(uuid())
+  name         String
+  department   Department    @relation(fields: [departmentId], references: [id])
+  departmentId String
+  tasks        Task[]
+  createdBy    User          @relation(fields: [createdById], references: [id])
+  createdById  String
+  assignedTo   Employee?     @relation(fields: [assignedToId], references: [id])
+  assignedToId String?
+  status       ProjectStatus @default(PENDING)
+  startDate    DateTime
+  endDate      DateTime
+  members      Employee[]    @relation("EmployeeProjects")
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  @@index([departmentId])
+  @@index([name])
+  @@index([createdAt])
+}
+
+// Task Model
+model Task {
+  id          String     @id @default(uuid())
+  title       String
+  description String?
+  status      TaskStatus @default(PENDING)
+  project     Project    @relation(fields: [projectId], references: [id])
+  projectId   String
+  assignee    Employee?  @relation("TaskAssignee", fields: [assigneeId], references: [id])
+  assigneeId  String?
+  timeLogs    TimeLog[]
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  @@index([projectId])
+  @@index([status])
+  @@index([createdAt])
+  @@index([title])
+}
+
+// Leave Model
+model Leave {
+  id           String      @id @default(uuid())
+  employee     Employee    @relation(fields: [employeeId], references: [id])
+  employeeId   String
+  startDate    DateTime
+  endDate      DateTime
+  reason       String?
+  approvedBy   User?       @relation(fields: [approvedById], references: [id])
+  approvedById String?
+  status       LeaveStatus @default(PENDING)
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  @@index([employeeId])
+  @@index([startDate])
+  @@index([endDate])
+  @@index([status])
+}
+
+model TimeLog {
+  id         String    @id @default(uuid())
+  employee   Employee  @relation(fields: [employeeId], references: [id])
+  employeeId String
+  task       Task      @relation(fields: [taskId], references: [id])
+  taskId     String
+  startTime  DateTime
+  endTime    DateTime?
+  duration   Int? // Duration in minutes
+  notes      String?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  @@index([employeeId])
+  @@index([taskId])
+  @@index([startTime])
+  @@index([endTime])
+  @@index([duration])
+}
+
+// Password Model
+model Password {
+  id          String          @id @default(uuid())
+  name        String
+  description String?
+  url         String?
+  username    String
+  password    String // Should be encrypted in production
+  type        PasswordType    @default(PRIVATE)
+  owner       Employee        @relation("PasswordOwner", fields: [ownerId], references: [id])
+  ownerId     String
+  shares      PasswordShare[] // Employees this password is shared with
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  @@index([ownerId]) // For owner lookups
+  @@index([type]) // For filtering by type
+  @@index([name]) // For searching passwords
+}
+
+// PasswordShare Model (for restricted passwords)
+model PasswordShare {
+  id         String   @id @default(uuid())
+  password   Password @relation(fields: [passwordId], references: [id])
+  passwordId String
+  employee   Employee @relation(fields: [employeeId], references: [id])
+  employeeId String
+  createdAt  DateTime @default(now())
+
+  @@unique([passwordId, employeeId]) // Prevent duplicate shares
+  @@index([passwordId]) // For password relation queries
+  @@index([employeeId]) // For employee relation queries
+}

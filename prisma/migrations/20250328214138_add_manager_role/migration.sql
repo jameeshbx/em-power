@@ -1,0 +1,4 @@
+-- AlterTable
+ALTER TABLE "Employee" ALTER COLUMN "designation" SET DEFAULT 'Employee',
+ALTER COLUMN "joiningDate" SET DEFAULT CURRENT_TIMESTAMP,
+ALTER COLUMN "availableLeaves" SET DEFAULT 25;
