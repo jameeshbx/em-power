@@ -2,14 +2,11 @@
 
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { TimeLog, Task, User } from '@prisma/client';
 import { Form, FormControl, FormField, FormItem, FormLabel } from '@/components/ui/form';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
 import { timeLogSchema, type TimeLogFormData } from '@/schemas/timeLog';
 import { Select, SelectContent, SelectItem, SelectValue, SelectTrigger } from '@/components/ui/select';
 import { useUser } from '@/hooks/useUser';
@@ -52,13 +49,18 @@ const parseDate = (date: Date | string | null | undefined): Date | null => {
 
 export default function TimeLogForm({ log, tasks, onClose, onSuccess }: TimeLogFormProps) {
     const [currentUser, setCurrentUser] = useState<User | null>(null);
+    const user = useUser();
+
     useEffect(() => {
-        const fetchCurrentUser = async () => {
-            const user = await useUser();
-            setCurrentUser(user);
-        }
-        fetchCurrentUser();
-    }, []);
+        const setUser = async () => {
+            if (user) {
+                const resolvedUser = await user;
+                setCurrentUser(resolvedUser);
+            }
+        };
+        setUser();
+    }, [user]);
+
     const form = useForm<TimeLogFormData>({
         resolver: zodResolver(timeLogSchema),
         defaultValues: {
@@ -78,19 +80,17 @@ export default function TimeLogForm({ log, tasks, onClose, onSuccess }: TimeLogF
             employeeId: currentUser?.employee?.id,
         }
         if (log?.id) {
-            const response = await fetch(`/api/time-logs`, {
+            await fetch(`/api/time-logs`, {
                 method: "PUT",
                 body: JSON.stringify(formattedData),
             });
-            const updatedTimeLog = await response.json();
             toast.success("Time log updated successfully");
             onSuccess();
         } else {
-            const response = await fetch(`/api/time-logs`, {
+            await fetch(`/api/time-logs`, {
                 method: "POST",
                 body: JSON.stringify(formattedData),
             });
-            const newTimeLog = await response.json();
             toast.success("Time log created successfully");
             onSuccess();
         }

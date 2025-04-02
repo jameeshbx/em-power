@@ -1,11 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Task, TimeLog } from '@prisma/client';
 import CustomTable from '@/components/CustomTable';
 import TimeLogForm from './TimeLogForm';
@@ -72,7 +68,7 @@ export default function Page() {
         { key: 'action', label: 'Action', sortable: false },
     ]
     const deleteTimeLog = async (id: string) => {
-        const response = await fetch(`/api/time-logs`, {
+        await fetch(`/api/time-logs`, {
             method: 'DELETE',
             body: JSON.stringify({ id }),
         });

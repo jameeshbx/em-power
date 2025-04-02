@@ -1,8 +1,14 @@
-// app/reset-password/page.tsx
 import ResetPasswordForm from "@/app/(auth)/reset-password/ResetPasswordForm"
 
-export default function ResetPasswordPage({ searchParams }: { searchParams: { token?: string; email?: string } }) {
-    const { token, email } = searchParams;
+interface PageProps {
+    searchParams: Promise<{
+        token?: string;
+        email?: string;
+    }>
+}
+
+export default async function ResetPasswordPage({ searchParams }: PageProps) {
+    const { token, email } = await searchParams;
 
     if (!token || !email) {
         return <div>Invalid reset link</div>;

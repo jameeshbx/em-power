@@ -1,6 +1,5 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { departmentSchema, type DepartmentFormData } from "@/schemas/department";
@@ -53,19 +52,17 @@ export function DepartmentForm({ department, onClose, onSuccess, employees, proj
     const onSubmit = async (data: DepartmentFormData) => {
         try {
             if (department?.id) {
-                const response = await fetch(`/api/department`, {
+                await fetch(`/api/department`, {
                     method: "PUT",
                     body: JSON.stringify(data),
                 });
-                const updatedDepartment = await response.json();
                 toast.success("Department updated successfully");
                 onSuccess();
             } else {
-                const response = await fetch("/api/department", {
+                await fetch("/api/department", {
                     method: "POST",
                     body: JSON.stringify(data),
                 });
-                const newDepartment = await response.json();
                 toast.success("Department created successfully");
                 onSuccess();
             }

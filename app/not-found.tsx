@@ -22,7 +22,7 @@ const NotFoundPage: React.FC = () => {
 
                 {/* Description */}
                 <p className="text-muted mb-6">
-                    It seems we've hit a dead end. The page you're looking for might have been moved or doesn't exist.
+                    It seems we&apos;ve hit a dead end. The page you&apos;re looking for might have been moved or doesn&apos;t exist.
                 </p>
 
                 {/* Back to Home Button */}

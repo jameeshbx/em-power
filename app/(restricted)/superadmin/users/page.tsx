@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import CustomTable from "@/components/CustomTable";
-import { Button } from "@/components/ui/button";
 import {
     Dialog,
     DialogContent,
@@ -10,7 +9,6 @@ import {
     DialogTitle
 } from "@/components/ui/dialog";
 import { UserForm } from "./UserForm";
-import { toast } from "sonner";
 
 import { User, UserRole } from "@prisma/client";
 
@@ -52,13 +50,13 @@ export default function UsersPage() {
             email: user.email,
             role: user.role,
             password: user.password,
-            // @ts-ignore
+            // @ts-expect-error - reportingToId is not always present
             reportingToId: user.employee?.reportingToId || null,
-            // @ts-ignore
+            // @ts-expect-error - designation is not always present
             designation: user.employee?.designation || "",
-            // @ts-ignore
+            // @ts-expect-error - joiningDate is not always present
             joiningDate: user.employee?.joiningDate || new Date(),
-            // @ts-ignore
+            // @ts-expect-error - availableLeaves is not always present
             availableLeaves: user.employee?.availableLeaves || 25
         });
         setOpen(true);
@@ -66,11 +64,10 @@ export default function UsersPage() {
 
     const handleDelete = async (id: string) => {
         try {
-            const response = await fetch(`/api/user`, {
+            await fetch(`/api/user`, {
                 method: "DELETE",
                 body: JSON.stringify({ id }),
             });
-            const data = await response.json();
             setUsers(users.filter((user) => user.id !== id));
             setKey(key + 1);
         } catch (error) {

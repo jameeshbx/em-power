@@ -7,19 +7,22 @@ import { Button } from "@/components/ui/button";
 import { ArrowUpDown, Plus, Pen, Trash } from "lucide-react"; // For sort icons
 import { useAuth } from "@/store/useAuth";
 import { FullScreenLoading } from "./Loading";
+
 interface Column {
     key: string;
     label: string;
     sortable?: boolean;
 }
 
-interface TableProps {
-    data: Record<string, any>[];
+// Define a generic type parameter for the data
+interface TableProps<T extends Record<string, unknown>> {
+    data: T[];
     columns: Column[];
-    onAction?: (action: string, row?: Record<string, any>) => void;
+    onAction?: (action: string, row?: T) => void;
 }
 
-const CustomTable: React.FC<TableProps> = ({ data, columns, onAction }) => {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const CustomTable: React.FC<TableProps<any>> = ({ data, columns, onAction }) => {
     const { isLoading } = useAuth();
     const [searchTerm, setSearchTerm] = useState("");
     const [sortConfig, setSortConfig] = useState<{ key: string; direction: "asc" | "desc" } | null>(null);

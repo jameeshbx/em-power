@@ -10,26 +10,10 @@ import { Button } from '@/components/ui/button';
 import { LogOut } from 'lucide-react';
 
 
-interface IconComponent {
-    className?: string;
-    // This allows the component to accept any valid SVG/icon props
-    [key: string]: any;
-}
 
 interface SidebarProps {
     isMini: boolean;
     toggleSidebar: () => void;
-}
-
-interface SidebarItem {
-    name: string;
-    path: string;
-    icon: IconComponent;
-    submenu?: {
-        name: string;
-        path: string;
-        icon?: IconComponent;
-    }[];
 }
 
 

@@ -2,21 +2,20 @@
 
 import { redirect } from "next/navigation";
 import { useUser } from "@/hooks/useUser";
-import { useEffect, useState } from "react";
-import { User } from "@prisma/client";
+import { useEffect } from "react";
 export default function Home() {
-  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const user = useUser();
   useEffect(() => {
-    const fetchCurrentUser = async () => {
-      const user = await useUser();
-      if (user?.role === "EMPLOYEE") {
-        redirect(`/employee/${user.id}`);
+    const setHomeUrl = async () => {
+      const resolvedUser = await user;
+      if (resolvedUser?.role === "EMPLOYEE") {
+        redirect(`/employee/${resolvedUser.id}`);
       } else {
         redirect("/admin/dashboard");
       }
     }
-    fetchCurrentUser();
-  }, []);
+    setHomeUrl();
+  }, [user]);
 
 
 

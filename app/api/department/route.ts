@@ -3,7 +3,7 @@ import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   const departments = await prisma.department.findMany({
     include: {
       employees: {
@@ -30,6 +30,7 @@ export async function POST(request: NextRequest) {
       },
     },
   });
+  return NextResponse.json(department);
 }
 
 export async function PUT(request: NextRequest) {

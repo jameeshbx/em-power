@@ -4,6 +4,7 @@ import { getUserById } from "@/actions/user";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useState, useEffect, use } from "react";
 import { useRouter } from "next/navigation";
+import { Department, Project } from "@prisma/client";
 interface ProfilePageProps {
     params: Promise<{ userId: string }> // params is now a Promise
 }
@@ -30,7 +31,7 @@ export default function Page({ params }: ProfilePageProps) {
     useEffect(() => {
         const fetchUser = async () => {
             const userData = await getUserById(userId);
-            //@ts-ignore
+            //@ts-expect-error - userData is not null
             setUser(userData);
         };
         fetchUser();
@@ -42,7 +43,7 @@ export default function Page({ params }: ProfilePageProps) {
                     <h1 className="text-2xl font-bold capitalize">
                         Projects
                     </h1>
-                    {user?.employee?.projects.map((project: any) => (
+                    {user?.employee?.projects.map((project: Project) => (
                         <Card key={project.id} className="flex flex-col gap-2 cursor-pointer" onClick={() => router.push(`/employee/projects/${project.id}`)}>
                             <CardHeader>
                                 <CardTitle>{project.name}</CardTitle>
@@ -73,7 +74,7 @@ export default function Page({ params }: ProfilePageProps) {
                         <br />
                         {user?.employee?.designation}
                         <br />
-                        {user?.employee?.departments.map((department: any) => department.name).join(", ")}
+                        {user?.employee?.departments.map((department: Department) => department.name).join(", ")}
                         <br />
                         Reporting to <br />
                         {user?.employee?.reportingTo?.user?.name}

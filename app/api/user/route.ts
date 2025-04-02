@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
-export async function GET(request: NextRequest) {
+export async function GET() {
   const users = await prisma.user.findMany({
     include: {
       employee: true,

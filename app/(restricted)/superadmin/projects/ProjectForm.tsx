@@ -20,7 +20,6 @@ interface ProjectFormProps {
 }
 
 export function ProjectForm({ initialData, onClose, onSuccess, departments, employees }: ProjectFormProps) {
-    const [isSubmitting, setIsSubmitting] = useState(false);
     const [filteredEmployees, setFilteredEmployees] = useState<Employee[]>(employees);
 
     const form = useForm<ProjectFormData>({
@@ -46,13 +45,8 @@ export function ProjectForm({ initialData, onClose, onSuccess, departments, empl
         } else {
             setFilteredEmployees([]);
         }
+    }, [departments, form]);
 
-    }, [form.watch('departmentId'), employees]);
-
-    const { register, handleSubmit, formState: { errors } } = useForm<ProjectFormData>({
-        resolver: zodResolver(projectSchema),
-        defaultValues: initialData,
-    });
 
     const updateProject = async (data: ProjectFormData) => {
         const response = await fetch(`/api/project`, {
@@ -97,7 +91,11 @@ export function ProjectForm({ initialData, onClose, onSuccess, departments, empl
                                 <Input {...field} />
                             </FormControl>
                             <FormMessage />
+                            {form.formState.errors.name && (
+                                <p className="text-sm text-red-500">{form.formState.errors.name.message}</p>
+                            )}
                         </FormItem>
+
                     )}
                 />
 

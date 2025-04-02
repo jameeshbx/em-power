@@ -2,7 +2,6 @@
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import {
     Form,
@@ -19,11 +18,6 @@ import { Select, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/
 import { SelectContent } from "@radix-ui/react-select";
 
 interface Employee {
-    id: string;
-    name: string;
-}
-
-interface Project {
     id: string;
     name: string;
 }
@@ -57,19 +51,17 @@ export function TaskForm({ task, onClose, onSuccess, employees, project }: TaskF
     const onSubmit = async (data: TaskFormData) => {
         try {
             if (task?.id) {
-                const response = await fetch(`/api/task`, {
+                await fetch(`/api/task`, {
                     method: "PUT",
                     body: JSON.stringify(data),
                 });
-                const updatedTask = await response.json();
                 toast.success("Task updated successfully");
                 onSuccess();
             } else {
-                const response = await fetch("/api/task", {
+                await fetch("/api/task", {
                     method: "POST",
                     body: JSON.stringify(data),
                 });
-                const newTask = await response.json();
                 toast.success("Task created successfully");
                 onSuccess();
             }

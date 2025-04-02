@@ -2,11 +2,11 @@ generator client {
   provider = "prisma-client-js"
 }
 
-generator erd {
-  provider = "prisma-erd-generator"
-  output   = "ERD.svg" // Optional: specify output file (default is ERD.svg)
-  theme    = "forest" // Optional: choose a theme (e.g., forest, neutral)
-}
+// generator erd {
+//   provider = "prisma-erd-generator"
+//   output   = "ERD.svg" // Optional: specify output file (default is ERD.svg)
+//   theme    = "forest" // Optional: choose a theme (e.g., forest, neutral)
+// }
 
 datasource db {
   provider = "postgresql"

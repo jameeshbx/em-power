@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import CustomTable from "@/components/CustomTable";
-import { Button } from "@/components/ui/button";
 import {
     Dialog,
     DialogContent,
@@ -10,7 +9,6 @@ import {
     DialogTitle
 } from "@/components/ui/dialog";
 import { DepartmentForm } from "./DepartmentForm";
-import { Sonner } from "@/components/ui/sonner";
 
 import { Department } from "@prisma/client";
 
@@ -66,11 +64,10 @@ export default function DepartmentsPage() {
 
     const handleDelete = async (id: string) => {
         try {
-            const response = await fetch(`/api/department`, {
+            await fetch(`/api/department`, {
                 method: "DELETE",
                 body: JSON.stringify({ id }),
             });
-            const data = await response.json();
             setDepartments(departments.filter((department) => department.id !== id));
         } catch (error) {
             console.error(error);

@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { AuthOptions, getServerSession } from "next-auth";
+import { authOptions } from "@/app/api/auth/[...nextauth]/auth";
 
 const prisma = new PrismaClient();
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     const projects = await prisma.project.findMany({
       include: {
@@ -17,17 +17,13 @@ export async function GET(request: NextRequest) {
     });
     return NextResponse.json(projects);
   } catch (error) {
-    return NextResponse.json(
-      { error: "Failed to fetch projects" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: JSON.stringify(error) }, { status: 500 });
   }
 }
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions as any);
-    // @ts-expect-error
+    const session = await getServerSession(authOptions as AuthOptions);
     if (!session?.user?.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
@@ -57,7 +53,6 @@ export async function POST(request: NextRequest) {
         status,
         startDate,
         endDate,
-        // @ts-expect-error
         createdById: session.user.id,
         members: {
           connect: members.map((id: string) => ({ id })),
@@ -72,10 +67,7 @@ export async function POST(request: NextRequest) {
     });
     return NextResponse.json(project);
   } catch (error) {
-    return NextResponse.json(
-      { error: "Failed to create project" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: JSON.stringify(error) }, { status: 500 });
   }
 }
 
@@ -121,26 +113,26 @@ export async function DELETE(request: NextRequest) {
   return NextResponse.json(project);
 }
 
-export async function ADD_MEMBER(request: NextRequest) {
-  const { projectId, employeeId } = await request.json();
-  const project = await prisma.project.update({
-    where: { id: projectId },
-    data: {
-      members: {
-        connect: { id: employeeId },
-      },
-    },
-  });
-  return NextResponse.json(project);
-}
+// async function ADD_MEMBER(request: NextRequest) {
+//   const { projectId, employeeId } = await request.json();
+//   const project = await prisma.project.update({
+//     where: { id: projectId },
+//     data: {
+//       members: {
+//         connect: { id: employeeId },
+//       },
+//     },
+//   });
+//   return NextResponse.json(project);
+// }
 
-export async function GET_PROJECT_WITH_MEMBERS(request: NextRequest) {
-  const { projectId } = await request.json();
-  const project = await prisma.project.findUnique({
-    where: { id: projectId },
-    include: {
-      members: true,
-    },
-  });
-  return NextResponse.json(project);
-}
+// async function GET_PROJECT_WITH_MEMBERS(request: NextRequest) {
+//   const { projectId } = await request.json();
+//   const project = await prisma.project.findUnique({
+//     where: { id: projectId },
+//     include: {
+//       members: true,
+//     },
+//   });
+//   return NextResponse.json(project);
+// }

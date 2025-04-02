@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { taskSchema } from "@/schemas/task";
 import { TaskStatus } from "@prisma/client";
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   const tasks = await prisma.task.findMany({
     include: {
       project: {

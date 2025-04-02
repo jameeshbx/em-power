@@ -11,7 +11,7 @@ type FormData = {
 };
 
 export default function ResetPasswordForm({ token, email }: { token: string; email: string }) {
-    const { register, handleSubmit, formState: { errors }, watch } = useForm<FormData>();
+    const { register, handleSubmit, formState: { errors } } = useForm<FormData>();
     const router = useRouter();
 
     const onSubmit = async (data: FormData) => {

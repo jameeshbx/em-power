@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -65,19 +64,19 @@ export function UserForm({ user, onClose, onSuccess, managers }: UserFormProps) 
     const onSubmit = async (data: UserFormData) => {
         try {
             if (user?.id) {
-                const response = await fetch(`/api/user`, {
+                await fetch(`/api/user`, {
                     method: "PUT",
                     body: JSON.stringify(data),
                 });
-                const updatedUser = await response.json();
+
                 toast.success("User updated successfully");
                 onSuccess();
             } else {
-                const response = await fetch("/api/user", {
+                await fetch("/api/user", {
                     method: "POST",
                     body: JSON.stringify(data),
                 });
-                const newUser = await response.json();
+
                 toast.success("User created successfully");
                 onSuccess();
             }

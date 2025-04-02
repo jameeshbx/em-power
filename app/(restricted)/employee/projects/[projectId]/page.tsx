@@ -51,7 +51,7 @@ export default function Page() {
                 // @ts-expect-error - taskData is not always present
                 setTasks((prevTasks) => [...prevTasks, taskData]);
             });
-            //@ts-ignore
+            //@ts-expect-error - projectData is not always present
             setProject(projectData);
         };
         fetchProject();
@@ -73,7 +73,7 @@ export default function Page() {
             setTasks(tasks.filter((task) => task.id !== id));
         }
     }
-    const handleAction = (action: string, row: any) => {
+    const handleAction = (action: string, row: Task) => {
         if (action === "add") {
             setSelectedTask(null);
             setOpen(true);
@@ -106,7 +106,7 @@ export default function Page() {
                                     setOpen(false);
                                     setKey(key + 1);
                                 }}
-                                employees={project.members.map((member: any) => ({
+                                employees={project.members.map((member: { id: string; user: { name: string } }) => ({
                                     id: member.id,
                                     name: member.user.name,
                                 }))}
@@ -128,7 +128,7 @@ export default function Page() {
                     <p className="text-sm text-gray-500">Department: {project.department.name}</p>
                     <h2 className="text-lg font-bold capitalize">Members</h2>
                     <div className="flex flex-col gap-2">
-                        {project.members.map((member: any) => (
+                        {project.members.map((member: { id: string; user: { name: string; email: string }; designation: string }) => (
                             <div key={member.id} className="flex flex-col gap-2">
                                 <p className="text-sm text-md font-bold">{member.user.name}</p>
                                 <p className="text-sm text-gray-500">{member.designation}</p>
