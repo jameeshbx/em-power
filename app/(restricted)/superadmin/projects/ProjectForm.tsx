@@ -45,7 +45,10 @@ export function ProjectForm({ initialData, onClose, onSuccess, departments, empl
         } else {
             setFilteredEmployees([]);
         }
-    }, [departments, form]);
+    }, [
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+        departments, form.watch('departmentId')
+    ]);
 
 
     const updateProject = async (data: ProjectFormData) => {

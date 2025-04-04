@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 export default function LoginPage() {
     const [email, setEmail] = useState("");
@@ -23,7 +24,7 @@ export default function LoginPage() {
         if (res?.error) {
             setError("Invalid email or password");
         } else {
-            router.push("/dashboard");
+            router.push("/");
         }
     };
 
@@ -50,6 +51,8 @@ export default function LoginPage() {
                     <button type="submit" className="w-full bg-blue-600 text-white py-2 rounded-md">
                         Sign In
                     </button>
+
+                    <Link href="/forgot-passworf">Forgot Password?</Link>
                 </form>
             </div>
         </div>
