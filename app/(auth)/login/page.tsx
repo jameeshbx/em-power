@@ -52,7 +52,7 @@ export default function LoginPage() {
                         Sign In
                     </button>
 
-                    <Link href="/forgot-passworf">Forgot Password?</Link>
+                    <Link href="/forgot-password">Forgot Password?</Link>
                 </form>
             </div>
         </div>

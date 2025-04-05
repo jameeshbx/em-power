@@ -4,6 +4,7 @@
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 import crypto from "crypto";
+import { emailService } from "./emailService";
 
 // const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -26,12 +27,11 @@ export async function forgotPassword(email: string) {
 
   const resetLink = `${process.env.NEXTAUTH_URL}/reset-password?token=${resetToken}&email=${email}`;
 
-  //   await resend.emails.send({
-  //     from: "noreply@yourdomain.com",
-  //     to: email,
-  //     subject: "Password Reset Request",
-  //     text: `Click this link to reset your password: ${resetLink}`,
-  //   });
+  await emailService.sendEmail({
+    to: email,
+    subject: "Password Reset Request",
+    html: `<p>Click this link to reset your password: <a href="${resetLink}">${resetLink}</a></p>`,
+  });
 
   return { success: true, link: resetLink };
 }

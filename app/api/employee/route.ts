@@ -22,7 +22,10 @@ export async function GET() {
     const whereClause =
       role === "MANAGER"
         ? {
-            employee: { reportingToId: user?.manager?.id },
+            OR: [
+              { employee: { reportingToId: user?.manager?.id } },
+              { id: user?.id },
+            ],
             role: { in: [UserRole.EMPLOYEE, UserRole.MANAGER] },
           }
         : { role: { in: [UserRole.EMPLOYEE, UserRole.MANAGER] } };

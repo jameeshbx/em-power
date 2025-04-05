@@ -16,7 +16,6 @@ export default function ForgotPasswordForm() {
     const onSubmit = async (data: FormData) => {
         const result = await forgotPassword(data.email);
         if (result.success) {
-            console.log(result);
             alert("Password reset link sent to your email!");
             router.push("/login");
         } else {

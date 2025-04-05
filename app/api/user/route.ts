@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 import { AuthOptions, getServerSession } from "next-auth";
 import { authOptions } from "../auth/[...nextauth]/auth";
+import { emailService } from "@/actions/emailService";
 export async function GET() {
   const session = await getServerSession(authOptions as AuthOptions);
   const role = session?.user?.role;
@@ -17,7 +18,12 @@ export async function GET() {
   });
   const whereClause =
     role === "MANAGER"
-      ? { employee: { reportingToId: user?.manager?.id } }
+      ? {
+          OR: [
+            { employee: { reportingToId: user?.manager?.id } },
+            { id: user?.id },
+          ],
+        }
       : {};
   const users = await prisma.user.findMany({
     where: whereClause,
@@ -31,47 +37,67 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   const body = await request.json();
-
-  // Check if the role is manager and set isManager flag
   const isManager = body.role?.toLowerCase() === "manager";
 
-  const user = await prisma.user.create({
-    data: {
-      name: body.name,
-      email: body.email,
-      isManager: isManager,
-      role: body.role,
-      password: await bcrypt.hash(body.password, 10),
-    },
-  });
-
-  // First verify the manager exists if reportingToId is provided
-  if (body.reportingToId && body.reportingToId !== "none") {
-    const manager = await prisma.manager.findUnique({
-      where: { id: body.reportingToId },
+  const user = await prisma.$transaction(async (tx) => {
+    // Create the user
+    const user = await tx.user.create({
+      data: {
+        name: body.name,
+        email: body.email,
+        isManager: isManager,
+        role: body.role,
+        password: await bcrypt.hash(body.password, 10),
+      },
     });
-    if (!manager) {
-      throw new Error("Reporting manager not found");
+
+    // Verify manager exists if reportingToId is provided
+    if (body.reportingToId && body.reportingToId !== "none") {
+      const manager = await tx.manager.findUnique({
+        where: { id: body.reportingToId },
+      });
+      if (!manager) {
+        throw new Error("Reporting manager not found");
+      }
     }
-  }
 
-  const employee = await prisma.employee.create({
-    data: {
-      userId: user.id,
-      designation: body.designation || "Employee",
-      joiningDate: body.joiningDate || new Date(),
-      availableLeaves: body.availableLeaves || 25,
-      reportingToId: body.reportingToId === "none" ? null : body.reportingToId,
-      managerId: body.managerId === "none" ? null : body.managerId,
-    },
-  });
-
-  if (isManager) {
-    await prisma.manager.create({
+    // Create employee record
+    const employee = await tx.employee.create({
       data: {
         userId: user.id,
-        employeeId: employee.id,
+        designation: body.designation || "Employee",
+        joiningDate: body.joiningDate || new Date(),
+        availableLeaves: body.availableLeaves || 25,
+        reportingToId:
+          body.reportingToId === "none" ? null : body.reportingToId,
+        managerId: body.managerId === "none" ? null : body.managerId,
       },
+    });
+
+    // Create manager record if applicable
+    if (isManager) {
+      await tx.manager.create({
+        data: {
+          userId: user.id,
+          employeeId: employee.id,
+        },
+      });
+    }
+
+    return user;
+  });
+
+  if (user) {
+    await emailService.sendEmail({
+      to: user.email,
+      subject: "Welcome to Em-Power",
+      html: `<p>Hi ${user.name}, </p> 
+      <p>Welcome to Em-Power, your one-stop solution for all your employee management needs.</p>
+      <p>Your account has been created successfully. You can now login to the platform using the following email address:</p>
+      <p>Email: ${user.email}</p>
+      <p>Please reset your password from login page.</p>
+      <p><b>Best Regards, </b> <br />BuyEx Team</b></p>
+      `,
     });
   }
   return NextResponse.json(user);
