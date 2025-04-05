@@ -9,7 +9,6 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { timeLogSchema, type TimeLogFormData } from '@/schemas/timeLog';
 import { Select, SelectContent, SelectItem, SelectValue, SelectTrigger } from '@/components/ui/select';
-import { useUser } from '@/hooks/useUser';
 import { toast } from 'sonner';
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
@@ -49,17 +48,16 @@ const parseDate = (date: Date | string | null | undefined): Date | null => {
 
 export default function TimeLogForm({ log, tasks, onClose, onSuccess }: TimeLogFormProps) {
     const [currentUser, setCurrentUser] = useState<User | null>(null);
-    const user = useUser();
+
 
     useEffect(() => {
         const setUser = async () => {
-            if (user) {
-                const resolvedUser = await user;
-                setCurrentUser(resolvedUser);
-            }
+            const response = await fetch(`/api/me`)
+            const data = await response.json()
+            setCurrentUser(data)
         };
         setUser();
-    }, [user]);
+    }, []);
 
     const form = useForm<TimeLogFormData>({
         resolver: zodResolver(timeLogSchema),
@@ -74,6 +72,7 @@ export default function TimeLogForm({ log, tasks, onClose, onSuccess }: TimeLogF
         },
     });
     const onSubmit = async (data: TimeLogFormData) => {
+
         const formattedData = {
             ...data,
             // @ts-expect-error employee is not included in the user object

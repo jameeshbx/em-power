@@ -19,10 +19,11 @@ interface TableProps<T extends Record<string, unknown>> {
     data: T[];
     columns: Column[];
     onAction?: (action: string, row?: T) => void;
+    disableActions?: boolean;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-const CustomTable: React.FC<TableProps<any>> = ({ data, columns, onAction }) => {
+const CustomTable: React.FC<TableProps<any>> = ({ data, columns, onAction, disableActions }) => {
     const { isLoading } = useAuth();
     const [searchTerm, setSearchTerm] = useState("");
     const [sortConfig, setSortConfig] = useState<{ key: string; direction: "asc" | "desc" } | null>(null);
@@ -74,9 +75,11 @@ const CustomTable: React.FC<TableProps<any>> = ({ data, columns, onAction }) => 
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className="mb-4"
                 />
-                <Button variant="ghost" onClick={() => emitAddAction("add")}>
-                    <Plus className="w-4 h-4 text-primary" />
-                </Button>
+                {disableActions ? null :
+                    <Button variant="ghost" onClick={() => emitAddAction("add")}>
+                        <Plus className="w-4 h-4 text-primary" />
+                    </Button>
+                }
             </div>
 
 
@@ -107,15 +110,16 @@ const CustomTable: React.FC<TableProps<any>> = ({ data, columns, onAction }) => 
                             {columns.map((column) => (
                                 <TableCell key={column.key}>
                                     {column.key === "action" ? (
-                                        <div className="flex gap-2 justify-end items-center w-[50px]">
-                                            <Button variant="ghost" onClick={() => onAction?.("edit", row)}>
-                                                <Pen className="w-4 h-4 text-primary" />
-                                            </Button>
-                                            <Button variant="ghost" onClick={() => onAction?.("delete", row)}>
-                                                <Trash className="w-4 h-4 text-destructive" />
-                                            </Button>
+                                        disableActions ? null :
+                                            <div className="flex gap-2 justify-end items-center w-[50px]">
+                                                <Button variant="ghost" onClick={() => onAction?.("edit", row)}>
+                                                    <Pen className="w-4 h-4 text-primary" />
+                                                </Button>
+                                                <Button variant="ghost" onClick={() => onAction?.("delete", row)}>
+                                                    <Trash className="w-4 h-4 text-destructive" />
+                                                </Button>
 
-                                        </div>
+                                            </div>
                                     ) : (
                                         row[column.key]
                                     )}

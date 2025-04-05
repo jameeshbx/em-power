@@ -1,8 +1,26 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
+import { AuthOptions, getServerSession } from "next-auth";
+import { authOptions } from "../auth/[...nextauth]/auth";
 export async function GET() {
+  const session = await getServerSession(authOptions as AuthOptions);
+  const role = session?.user?.role;
+  const user = await prisma.user.findUnique({
+    where: {
+      id: session?.user?.id,
+    },
+    include: {
+      employee: true,
+      manager: true,
+    },
+  });
+  const whereClause =
+    role === "MANAGER"
+      ? { employee: { reportingToId: user?.manager?.id } }
+      : {};
   const users = await prisma.user.findMany({
+    where: whereClause,
     include: {
       employee: true,
       manager: true,

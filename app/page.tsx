@@ -1,13 +1,14 @@
 'use client'
 
 import { redirect } from "next/navigation";
-import { useUser } from "@/hooks/useUser";
 import { useEffect } from "react";
 export default function Home() {
-  const user = useUser();
+
   useEffect(() => {
     const setHomeUrl = async () => {
-      const resolvedUser = await user;
+      const response = await fetch("/api/me");
+      const data = await response.json();
+      const resolvedUser = data;
       if (resolvedUser?.role === "EMPLOYEE") {
         redirect(`/employee/${resolvedUser.id}`);
       } else if (resolvedUser?.role === "SUPERADMIN") {
@@ -19,7 +20,7 @@ export default function Home() {
       }
     };
     setHomeUrl();
-  }, [user]);
+  }, []);
 
 
 

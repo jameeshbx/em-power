@@ -1,13 +1,26 @@
 import { NextRequest, NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
 import { AuthOptions, getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/auth";
-
-const prisma = new PrismaClient();
+import { prisma } from "@/lib/prisma";
 
 export async function GET() {
   try {
+    const session = await getServerSession(authOptions as AuthOptions);
+    const role = session?.user?.role;
+    const user = await prisma.user.findUnique({
+      where: {
+        id: session?.user?.id,
+      },
+      include: {
+        employee: true,
+        manager: true,
+      },
+    });
+
+    const whereClause =
+      role === "MANAGER" ? { assignedToId: user?.employee?.id } : {};
     const projects = await prisma.project.findMany({
+      where: whereClause,
       include: {
         department: true,
         createdBy: true,
