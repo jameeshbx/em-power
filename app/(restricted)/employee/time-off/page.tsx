@@ -89,15 +89,15 @@ export default function Page() {
     };
 
     const onSubmit = async (data: TimeOffFormData) => {
-        console.log("Form submitted:", data);
-
         const timeOff = await fetch("/api/timeoff", {
             method: "POST",
             body: JSON.stringify({ ...data, workingDays, startDate: new Date(data.startDate), endDate: new Date(data.endDate) }),
         });
 
-        setShowRequestForm(false);
-        setKey(key + 1);
+        if (timeOff.ok) {
+            setShowRequestForm(false);
+            setKey(key + 1);
+        }
     };
 
     useEffect(() => {
