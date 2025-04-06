@@ -11,9 +11,11 @@ import {
 import { UserForm } from "./UserForm";
 
 import { User, UserRole } from "@prisma/client";
+import { DeleteConfirm } from "@/components/DeleteConfirm";
 
 export default function UsersPage() {
     const [open, setOpen] = useState(false);
+    const [deletePopup, setDeletePopup] = useState(false);
     const [key, setKey] = useState(0);
     const [selectedUser, setSelectedUser] = useState<{
         id?: string;
@@ -82,7 +84,9 @@ export default function UsersPage() {
         } else if (action === "edit") {
             handleEdit(data);
         } else if (action === "delete") {
-            handleDelete(data.id);
+            //@ts-expect-error - User object is nodified
+            setSelectedUser(data);
+            setDeletePopup(true);
         }
     };
 
@@ -116,6 +120,13 @@ export default function UsersPage() {
                     />
                 </DialogContent>
             </Dialog>
+
+            <DeleteConfirm
+                isOpen={deletePopup}
+                onClose={() => setDeletePopup(false)}
+                onConfirm={() => handleDelete(selectedUser?.id || '')}
+                item={selectedUser?.name || ''}
+            />
         </div>
     );
 }

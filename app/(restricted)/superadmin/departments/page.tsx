@@ -12,6 +12,8 @@ import { DepartmentForm } from "./DepartmentForm";
 
 import { Department } from "@prisma/client";
 
+import { DeleteConfirm } from "@/components/DeleteConfirm";
+
 interface Employee {
     id: string;
     name: string;
@@ -29,6 +31,7 @@ export default function DepartmentsPage() {
     const [employees, setEmployees] = useState<Employee[]>([]);
     const [projects, setProjects] = useState<Project[]>([]);
     const [key, setKey] = useState(0);
+    const [deletePopup, setDeletePopup] = useState(false);
     useEffect(() => {
         const fetchEmployees = async () => {
             const response = await fetch("/api/employee");
@@ -81,7 +84,8 @@ export default function DepartmentsPage() {
         } else if (action === "edit") {
             handleEdit(data);
         } else if (action === "delete") {
-            handleDelete(data.id);
+            setSelectedDepartment(data);
+            setDeletePopup(true);
         }
     };
 
@@ -117,6 +121,12 @@ export default function DepartmentsPage() {
                     />
                 </DialogContent>
             </Dialog>
+            <DeleteConfirm
+                isOpen={deletePopup}
+                onClose={() => setDeletePopup(false)}
+                onConfirm={() => handleDelete(selectedDepartment?.id || '')}
+                item={selectedDepartment?.name || ''}
+            />
         </div>
     );
 }

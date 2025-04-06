@@ -5,13 +5,14 @@ import { ProjectForm } from './ProjectForm';
 import { Department, Employee, Project } from '@prisma/client';
 import CustomTable from '@/components/CustomTable';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { DeleteConfirm } from '@/components/DeleteConfirm';
 
 export default function Page() {
     const [projects, setProjects] = useState<Project[]>([]);
     const [open, setOpen] = useState(false);
     const [selectedProject, setSelectedProject] = useState<Project | null>(null);
     const [key, setKey] = useState(0);
-
+    const [showDeleteDialog, setShowDeleteDialog] = useState(false);
     const columns = [
         {
             key: 'name',
@@ -113,7 +114,7 @@ export default function Page() {
         }
         else if (action === 'delete') {
             setSelectedProject(data);
-            handleDelete();
+            setShowDeleteDialog(true);
         }
     }
 
@@ -152,6 +153,13 @@ export default function Page() {
                     />
                 </DialogContent>
             </Dialog>
+
+            <DeleteConfirm
+                isOpen={showDeleteDialog}
+                onClose={() => setShowDeleteDialog(false)}
+                onConfirm={handleDelete}
+                item={selectedProject?.name || ''}
+            />
 
         </div>
     )
