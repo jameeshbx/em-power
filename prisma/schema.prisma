@@ -168,17 +168,20 @@ model Task {
 
 // Leave Model
 model Leave {
-  id           String      @id @default(uuid())
-  employee     Employee    @relation(fields: [employeeId], references: [id])
-  employeeId   String
-  startDate    DateTime
-  endDate      DateTime
-  reason       String?
-  approvedBy   User?       @relation(fields: [approvedById], references: [id])
-  approvedById String?
-  status       LeaveStatus @default(PENDING)
-  createdAt    DateTime    @default(now())
-  updatedAt    DateTime    @updatedAt
+  id            String      @id @default(uuid())
+  employee      Employee    @relation(fields: [employeeId], references: [id])
+  employeeId    String
+  startDate     DateTime
+  endDate       DateTime
+  reason        String?
+  leaveType     String?     @default("Vacation")
+  approvedBy    User?       @relation(fields: [approvedById], references: [id])
+  approvedById  String?
+  status        LeaveStatus @default(PENDING)
+  workingDays   Int?
+  remainingDays Int?
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
 
   @@index([employeeId])
   @@index([startDate])

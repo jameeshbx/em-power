@@ -1,11 +1,10 @@
 import {
   LayoutDashboard,
-  Lock,
   FolderKanban,
   CheckSquare,
   Clock,
   Users,
-  UserIcon,
+  Plane,
   Home,
 } from "lucide-react";
 interface IconComponent {
@@ -95,5 +94,13 @@ export const sidebarData: {
     isActive: true,
     isVisible: true,
     permission: ["SUPERADMIN", "ADMIN", "MANAGER", "EMPLOYEE"],
+  },
+  {
+    name: "Time Off",
+    icon: Plane,
+    path: "/PERMISSION/time-off",
+    isActive: true,
+    isVisible: true,
+    permission: ["MANAGER", "EMPLOYEE"],
   },
 ];
