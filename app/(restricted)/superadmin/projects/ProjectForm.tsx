@@ -31,8 +31,8 @@ export function ProjectForm({ initialData, onClose, onSuccess, departments, empl
             assignedToId: initialData?.assignedToId || "",
             members: initialData?.members || [],
             status: initialData?.status || ProjectStatus.PENDING,
-            startDate: initialData?.startDate || new Date(),
-            endDate: initialData?.endDate || new Date(),
+            startDate: initialData?.startDate ? new Date(initialData?.startDate) : new Date(),
+            endDate: initialData?.endDate ? new Date(initialData?.endDate) : new Date(),
         },
     });
 

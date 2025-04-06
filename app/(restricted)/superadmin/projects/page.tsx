@@ -103,6 +103,7 @@ export default function Page() {
         if (response.ok) {
             setKey(key + 1);
         }
+        setShowDeleteDialog(false);
     }
     const handleAction = (action: string, data: Project) => {
         if (action === 'add') {

@@ -72,6 +72,7 @@ export default function UsersPage() {
             });
             setUsers(users.filter((user) => user.id !== id));
             setKey(key + 1);
+            setDeletePopup(false);
         } catch (error) {
             console.error(error);
         }

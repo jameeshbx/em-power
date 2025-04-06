@@ -7,8 +7,10 @@ import CustomTable from '@/components/CustomTable';
 import TimeLogForm from './TimeLogForm';
 import { getMyTasks } from '@/actions/task';
 import { getMyTimelogs } from '@/actions/timelogs';
+import { DeleteConfirm } from '@/components/DeleteConfirm';
 export default function Page() {
     const [open, setOpen] = useState(false);
+    const [deletePopup, setDeletePopup] = useState(false);
     const [selectedTimeLog, setSelectedTimeLog] = useState<TimeLog | null>(null);
     const [tasks, setTasks] = useState<Partial<Task>[]>([]);
     const [timeLogs, setTimeLogs] = useState<{
@@ -72,6 +74,8 @@ export default function Page() {
             method: 'DELETE',
             body: JSON.stringify({ id }),
         });
+        setDeletePopup(false);
+        setKey(key + 1);
     }
 
     const handleAction = (action: string, row: TimeLog) => {
@@ -82,7 +86,8 @@ export default function Page() {
             setSelectedTimeLog(row);
             setOpen(true);
         } else if (action === 'delete') {
-            deleteTimeLog(row.id);
+            setSelectedTimeLog(row);
+            setDeletePopup(true);
         }
     }
 
@@ -108,6 +113,16 @@ export default function Page() {
                             }} />
                         </DialogContent>
                     </Dialog>
+
+                    <DeleteConfirm
+                        isOpen={deletePopup}
+                        onClose={() => setDeletePopup(false)}
+                        onConfirm={() => deleteTimeLog(selectedTimeLog?.id || '')}
+                        item={
+                            //@ts-expect-error - TimeLog object is not modified
+                            selectedTimeLog?.task || ''
+                        }
+                    />
                 </div>
             </div>
         </div>

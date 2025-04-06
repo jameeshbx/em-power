@@ -46,7 +46,7 @@ export function MultiSelect({
                     role="combobox"
                     aria-expanded={open}
                     className={cn(
-                        "w-full justify-between",
+                        "w-full justify-between max-w-[470px]",
                         error ? "border-red-500" : "",
                         className
                     )}

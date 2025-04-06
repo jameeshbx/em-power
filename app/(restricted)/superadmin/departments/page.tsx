@@ -72,6 +72,7 @@ export default function DepartmentsPage() {
                 body: JSON.stringify({ id }),
             });
             setDepartments(departments.filter((department) => department.id !== id));
+            setDeletePopup(false);
         } catch (error) {
             console.error(error);
         }
